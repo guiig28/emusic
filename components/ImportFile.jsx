@@ -1,4 +1,20 @@
 export default function ImportFiles() {
+  function handleFileInputChange(ev) {
+    const selectedFiles = Array.from(ev.target.files);
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileData = reader.result;
+        const fileObject = {
+          name: file.name,
+          data: new Uint8Array(fileData),
+        };
+        window.electronAPI.SendToElectron("music-upload", fileObject);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
   return (
     <div className="mb-3">
       <label
@@ -13,6 +29,7 @@ export default function ImportFiles() {
         id="formFileMultiple"
         multiple
         accept=".mp3,.wav"
+        onChange={handleFileInputChange}
       />
     </div>
   );

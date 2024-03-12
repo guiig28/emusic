@@ -4,6 +4,7 @@ import PlayListIcon from "./icons/PlayListIcon";
 export default function BottomBar() {
   function handleModalPlaylist() {
     document.getElementById("modal-play-list").classList.toggle("hidden");
+    document.getElementById("modal-play-list").classList.toggle("flex");
   }
   return (
     <>
