@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ModalPlaylist() {
   const [musicPlayList, setMusicPlayList] = useState([]);
+
+  useEffect(() => {
+    window.electronAPI.ReceiveFromElectron("music-playable", (ev, music) => {
+      setMusicPlayList([...musicPlayList, music]);
+    });
+  }, [musicPlayList]);
 
   return (
     <div
@@ -15,9 +21,12 @@ export default function ModalPlaylist() {
         ) : (
           musicPlayList.map((music, index) => {
             return (
-              <p className="text-white" key={index}>
-                {music}
-              </p>
+              <>
+                <p className="text-white" key={index}>
+                  {music}
+                </p>
+                <br />
+              </>
             );
           })
         )}

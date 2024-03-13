@@ -4,7 +4,7 @@ export default function Toast() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    window.electronAPI.ReceiveFromElectron("toast-receive", (ev, arg) => {
+    window.electronAPI.ReceiveFromElectron("toast:receive", (ev, arg) => {
       setMessage(arg);
 
       const toast = document.getElementById("toast");
@@ -18,7 +18,8 @@ export default function Toast() {
   }, []);
 
   function handleClose() {
-    setMensagem("");
+    setMessage("");
+
     const toast = document.getElementById("toast");
     toast.classList.add("hidden");
     toast.classList.remove("flex");

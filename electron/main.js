@@ -44,11 +44,36 @@ ipcMain.on("music-upload", (ev, file) => {
     if (err) {
       mainWindow.webContents.send("toast:receive", err);
     } else {
-      // sendUpdateList();
+      sendUpdateList();
       mainWindow.webContents.send(
         "toast:receive",
         "File uploaded successfully"
       );
     }
   });
+});
+
+ipcMain.on("music-get", async () => {
+  sendUpdateList();
+});
+
+async function sendUpdateList() {
+  const files = await fs.promises.readdir(musicDir);
+  mainWindow.webContents.send("music-list", files);
+}
+
+ipcMain.on("music-delete", async (ev, file) => {
+  const filePath = path.join(musicDir, file);
+  fs.unlink(filePath, async (err) => {
+    if (err) {
+      mainWindow.webContents.send("toast:receive", err);
+    } else {
+      sendUpdateList();
+      mainWindow.webContents.send("toast:receive", "File deleted successfully");
+    }
+  });
+});
+
+ipcMain.on("music-to-play", (ev, fileName) => {
+  mainWindow.webContents.send("music-playable", fileName);
 });
