@@ -20,7 +20,6 @@ export default function MusicList() {
 
   useEffect(() => {
     fetchMusicList();
-    console.log(musicList);
   }, []);
 
   return (

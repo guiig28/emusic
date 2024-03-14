@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NextIcon from "./icons/NextIcon";
 import PauseIcon from "./icons/PauseIcon";
 import PlayIcon from "./icons/PlayIcon";
 import PreviousIcon from "./icons/PreviousIcon";
+import formatTime from "@/functions/formatTime";
 
 export default function ControlMusic() {
   const [musicPlayList, setMusicPlayList] = useState([]);
@@ -12,6 +13,79 @@ export default function ControlMusic() {
   const [musicIndex, setMusicIndex] = useState(0);
 
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    window.electronAPI.ReceiveFromElectron(
+      "music-playable",
+      async (ev, music) => {
+        setMusicPlayList(...musicPlayList, music);
+
+        console.log(audioRef.current);
+
+        if (!audioRef.current.currentSrc) {
+          setAudio(`/music/${music}`);
+          audioRef.current.load();
+          setCurrentTime(audioRef.current.currentTime);
+          console.log(music);
+        }
+      }
+    );
+  }, [musicPlayList]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.addEventListener("loadedmetadata", () => {
+        setDuration(audioRef.current.duration);
+      });
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("loadedmetadata", () => {});
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      const musicDuration = audioRef.current.duration;
+      const interval = setInterval(() => {
+        if (!audioRef.current.paused) {
+          const time = audioRef.current.currentTime;
+          setCurrentTime(time);
+
+          const progressBar = document.getElementById("progress-bar");
+          progressBar.style.width = `${(time / musicDuration) * 100}%`;
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [audioRef.current]);
+
+  function handlePlay() {
+    if (audio !== null) {
+      audioRef.current.play();
+
+      document.getElementById("play").classList.remove("flex");
+      document.getElementById("play").classList.add("hidden");
+
+      document.getElementById("pause").classList.remove("hidden");
+      document.getElementById("pause").classList.add("flex");
+    }
+  }
+
+  function handlePause() {
+    if (audio !== null) {
+      audioRef.current.pause();
+
+      document.getElementById("pause").classList.remove("flex");
+      document.getElementById("pause").classList.add("hidden");
+
+      document.getElementById("play").classList.remove("hidden");
+      document.getElementById("play").classList.add("flex");
+    }
+  }
 
   return (
     <div className="w-96 h-14 px-8 flex-col justify-center items-center gap-4 inline-flex">
@@ -26,12 +100,12 @@ export default function ControlMusic() {
           className="flex w-4 h-4 justify-start items-start gap-2.5"
         >
           <div className="w-4 h-4 relative">
-            <PlayIcon />
+            <PlayIcon onClick={handlePlay} />
           </div>
         </div>
 
-        <audio>
-          <source type="audio/mp3" />
+        <audio ref={audioRef}>
+          <source type="audio/mp3" src={audio} />
         </audio>
 
         <div
@@ -39,7 +113,7 @@ export default function ControlMusic() {
           className="hidden w-4 h-4 justify-start items-start gap-2.5"
         >
           <div className="w-4 h-4 relative">
-            <PauseIcon />
+            <PauseIcon onClick={handlePause} />
           </div>
         </div>
 
@@ -52,7 +126,7 @@ export default function ControlMusic() {
 
       <div className="self-stretch justify-start items-center gap-8 inline-flex">
         <div className="text-center text-xs text-white font-semibold leading-tight tracking-wide">
-          <p>"00:00"</p>
+          <p>{audioRef.current ? formatTime(duration) : "00:00"}</p>
         </div>
 
         <div className="w-96 h-1 relative bg-neutral-600 rounded-full">
@@ -63,7 +137,7 @@ export default function ControlMusic() {
         </div>
 
         <div className="text-center text-xs text-white font-semibold leading-tight tracking-wide">
-          "00:00"
+          <p>{audioRef.current ? formatTime(currentTime) : "00:00"}</p>
         </div>
       </div>
     </div>

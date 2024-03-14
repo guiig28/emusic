@@ -21,12 +21,10 @@ export default function ModalPlaylist() {
         ) : (
           musicPlayList.map((music, index) => {
             return (
-              <>
-                <p className="text-white" key={index}>
-                  {music}
-                </p>
+              <div key={index}>
+                <p className="text-white">{music}</p>
                 <br />
-              </>
+              </div>
             );
           })
         )}
