@@ -20,8 +20,12 @@ export default function MusicInList({ music }) {
           <h2 className="text-white">{music}</h2>
         </div>
         <div className="flex flex-row justify-center gap-5 h-full">
-          <AddIcon onClick={() => handleAddMusic(music)} />
-          <DeleteIcon onClick={() => handleDeleteMusic(music)} />
+          <div className="cursor-pointer">
+            <AddIcon onClick={() => handleAddMusic(music)} />
+          </div>
+          <div className="cursor-pointer">
+            <DeleteIcon onClick={() => handleDeleteMusic(music)} />
+          </div>
         </div>
       </div>
     </div>
